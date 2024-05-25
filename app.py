@@ -140,7 +140,7 @@ def get_survey_access():
                     opts.append(j)
             opts = sorted(opts, key=lambda d: d['order'])
             i['options']= opts
-        d['questions'] = question
+        d['questions'] = questions
         d['survey_details'] =f
         return render_template('ans_survey.html',data=d)
 
