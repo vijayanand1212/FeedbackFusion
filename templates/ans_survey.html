@@ -45,38 +45,51 @@
           {{data['survey_details'][3]}}
         </p>
       </div>
-      <div style="margin-left: 20px; margin-right: 20px">
-        <p class="fs-5 fw-bold m-0">Respondent Details:</p>
-        <p class="fs-5">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium
-          repellendus pariatur nulla fugit rem ratione, aliquid quo beatae, esse
-          cupiditate perferendis dolore, ab veniam commodi? Officiis laborum
-          deserunt repellat non?
-        </p>
-      </div>
+
       <div style="margin-left: 20px; margin-right: 20px">
         <p class="fs-5 fw-bold">Start Answering The Below Questions:</p>
-        {% for i in data['questions'] %}
-        <p class="fs-5">
-          <span class="fw-bold">{{i['order']}}.</span>
-          {{i['Description']}}
-        </p>
-        {% for j in i['options'] %}
-        <div class="form-check">
+        <form action="/ans_survey_post" method="post">
           <input
-            class="form-check-input"
-            type="radio"
-            name="{{j['QuestionId']}}"
-            id="flexRadioDefault + {{j['order']}}"
+            hidden
+            name="survey_code"
+            value="{{data['survey_details'][0]}}"
           />
-          <label
-            class="form-check-label"
-            for="flexRadioDefault + {{j['order']}}"
+          {% for i in data['questions'] %}
+          <p class="fs-5">
+            <span class="fw-bold">{{i['order']}}.</span>
+            {{i['Description']}}
+          </p>
+          {% if i['questiontype_id'] == 1 %} {% for j in i['options'] %}
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="q{{i['QuestionId']}}-{{i['questiontype_id']}}-{{i['questiontype_id']}}"
+              id="{{j['order']}}"
+              value="{{j['order']}}"
+              required
+            />
+            <label class="form-check-label" for="{{j['order']}}">
+              {{j['OptDesc']}}
+            </label>
+          </div>
+          {% endfor %} {% else %}
+          <textarea
+            type="text"
+            name="q{{i['QuestionId']}}-{{i['questiontype_id']}}-None"
+            required
+            class="form-control"
+          ></textarea>
+
+          {%endif %} {%endfor %}
+          <button
+            class="btn btn-success"
+            type="submit"
+            style="display: block; margin-top: 20px"
           >
-            {{j['OptDesc']}}
-          </label>
-        </div>
-        {% endfor %} {%endfor %}
+            Answer Survey
+          </button>
+        </form>
       </div>
     </div>
   </body>

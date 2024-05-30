@@ -4,7 +4,7 @@ from flask_mysqldb import MySQL
 from modules.functions import *
 import hashlib
 from pprint import pprint
-
+from datetime import datetime
 app = Flask(__name__,template_folder="templates",static_folder="static")
 
 app.config["SESSION_PERMANENT"]=False
@@ -142,17 +142,52 @@ def get_survey_access():
             i['options']= opts
         d['questions'] = questions
         d['survey_details'] =f
+      
         return render_template('ans_survey.html',data=d)
 
         
     return 'a'
+@app.route("/ans_survey_post",methods=["POST","GET"])
+def ans_survey_post():
+    if authenticate(mysql,session)==False:
+        return redirect('/login')
+    survey_code = request.form.get('survey_code')
+    #making ans dict
+    d = {}
+    d['survey_code'] = survey_code
+    d['respondent_id'] = session['user_id'] 
+    date = datetime.now()
+    d['date'] = date.strftime("%Y-%m-%d")
 
+    #q = f"INSERT INTO surveyfeedback.response(survey_id,user_id,date) values({d['survey_code']},{d['respondent_id']},'{d['date']}')"
+
+    #mysql_db(mysql,q)
+    #a = mysql_db(mysql,"SELECT LAST_INSERT_ID();","get")[0][0]
+    d['answers'] = []
     
+    qs=[]
+    print(request.form)
+
+    for i in request.form:
+        print(i)
+        if i[0][0] == "q":
+            qs.append([i,request.form.get(i)])
+    print(qs)
+    
+    return str(survey_code)
+
+
+@app.route("/create_survey",methods=["GET"])
+def create_survey():
+    return render_template('create_survey.html')
+
 @app.route("/delete_survey",methods=["POST"])
 def delete_survey():
     if authenticate(mysql,session)==False:
         return redirect('/login')
     mysql_db(mysql,f"DELETE FROM surveys_table WHERE survey_id={request.form.get('id')};","commit")
     return redirect(url_for('my_surveys'))
+
+
 if __name__ == "__main__":
     app.run(debug=True)
