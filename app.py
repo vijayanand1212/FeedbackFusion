@@ -5,6 +5,7 @@ from modules.functions import *
 import hashlib
 from pprint import pprint
 from datetime import datetime
+import json
 app = Flask(__name__,template_folder="templates",static_folder="static")
 
 app.config["SESSION_PERMANENT"]=False
@@ -97,7 +98,7 @@ def my_surveys():
     d={}
     if authenticate(mysql,session)==False:
         return redirect('/login')
-    q = f'SELECT survey_id, user_id, survey_tite, survey_description, brand_logo, status, date_created, visibility_description,status_description FROM surveys_table INNER JOIN visibility_table on surveys_table.visibility = visibility_table.visibility_id INNER JOIN status_table on status_table.status_id = surveys_table.status where user_id={session["user_id"]};'
+    q = f'SELECT survey_id, user_id, survey_title, survey_description, brand_logo, status, date_created, visibility_description,status_description FROM surveys_table INNER JOIN visibility_table on surveys_table.visibility = visibility_table.visibility_id INNER JOIN status_table on status_table.status_id = surveys_table.status where user_id={session["user_id"]};'
     f = mysql_db(mysql,q,"get")
     d['content']=f
     d['user_name']= (session['user_name'][:12]) + ("..." if len(session['user_name'])>12 else "")
@@ -110,15 +111,15 @@ def get_survey_access():
         return redirect('/login')
     if request.method == 'POST':
         survey_id =request.form.get('code')
-        q=f'SELECT survey_id, user_name,survey_tite, survey_description, brand_logo, date_created FROM surveys_table INNER JOIN users_table on users_table.user_id = surveys_table.user_id where survey_id ={survey_id};'
+        q=f'SELECT survey_id, user_name,status,visibility,survey_title, survey_description, brand_logo, date_created FROM surveys_table INNER JOIN users_table on users_table.user_id = surveys_table.user_id where survey_id ={survey_id};'
         f = mysql_db(mysql,q,"fetchone")
+
         if not f:
             d['errors'].append("Survey code does not exist!")
             return render_template('errors.html',data=d)
         elif f[2]==1:
             d['errors'].append("This is Survey has been completed!")
             return render_template('errors.html',data=d)
-       
         elif f[2] == 3 or f[3] == 3:
             d['errors'].append("Survey code does not exist!")
             return render_template('errors.html',data=d)
@@ -177,15 +178,29 @@ def ans_survey_post():
     return str(survey_code)
 
 
-@app.route("/create_survey",methods=["GET"])
+@app.route("/create_survey",methods=["GET","POST"])
 def create_survey():
+    if request.method == "POST":
+        data = request.json
+        date = datetime.now()
+        date_s = date.strftime("%Y-%m-%d")
+        json_dump = json.dumps(data['questions'])
+        
+        q=f"CALL InsertSurveyData({session['user_id']},'{data['survey_title']}', '{data['survey_desc']}',{data['visibility']},'{date_s}','{json_dump}') "
+        print(q)
+        mysql_db(mysql,q,"commit")
+        
+        return str("Please visit My Surveys")
     return render_template('create_survey.html')
+
 
 @app.route("/delete_survey",methods=["POST"])
 def delete_survey():
     if authenticate(mysql,session)==False:
         return redirect('/login')
-    mysql_db(mysql,f"DELETE FROM surveys_table WHERE survey_id={request.form.get('id')};","commit")
+    q=f"CALL DeleteSurvey({request.form.get('id')});"
+    print(q)
+    mysql_db(mysql,q,"commit")
     return redirect(url_for('my_surveys'))
 
 

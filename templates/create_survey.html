@@ -86,11 +86,41 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      let state = [];
+      const add_option = function () {
+        state[this.id - 1]["current_option_no"] =
+          state[this.id - 1]["current_option_no"] + 1;
+        optId = state[this.id - 1]["current_option_no"];
+        a = document.getElementById(`div-${this.id}`);
+        const label = document.createElement("label");
+        label.innerHTML = `option ${optId}`;
+        const input = document.createElement("input");
+        input.className = "form-control me-2 w-25 mt-2";
+        input.type = "text";
+        input.required = true;
+        input.name = `${optId}-${current_question_order}`;
+
+        a.appendChild(label);
+        a.appendChild(input);
+        state[this.id - 1]["opts"].push({ optOrder: optId, opt_input: input });
+      };
+      const fetchdata = async (data) => {
+        fetch("/create_survey", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.text())
+          .then((data) =>
+            alert(`Success fully Created \nYour Survey Code:${data}`)
+          );
+      };
       const add_question = document.getElementById("add_question");
       const main_container = document.getElementById("main_container");
       let current_question_order = 1;
       let d = {};
-      let state = [];
       d["questions"] = [];
       add_question.addEventListener("click", function () {
         const op = document.getElementById("questionType").value;
@@ -98,19 +128,23 @@
           const label = document.createElement("label");
           label.innerHTML = `Enter Question ${current_question_order}.`;
           label.className = "fw-bold mb-1";
+
           const input = document.createElement("input");
           input.className = "form-control me-2";
           input.type = "text";
           input.required = true;
           input.name = `${current_question_order}`;
+
+          const div_in = document.createElement("div");
+          main_container.appendChild(div_in);
+
           state.push({
             input_field: input,
             Questionorder: current_question_order,
             questiontype: op,
-            opts: [],
           });
-          main_container.appendChild(label);
-          main_container.appendChild(input);
+          div_in.appendChild(label);
+          div_in.appendChild(input);
 
           current_question_order += 1;
         } else {
@@ -126,20 +160,34 @@
           const button = document.createElement("button");
           button.innerHTML = "Add Option";
           button.className = "btn btn-danger d-block mt-1";
+          button.id = current_question_order;
+          button.addEventListener("click", add_option);
+
+          const div_in = document.createElement("div");
+          main_container.appendChild(div_in);
+
+          const div_opt = document.createElement("div");
+          div_opt.id = `div-${current_question_order}`;
+
           state.push({
             input_field: input,
             Questionorder: current_question_order,
             questiontype: op,
+            current_option_no: 0,
             opts: [],
             input_btn: button,
           });
-          main_container.appendChild(label);
-          main_container.appendChild(input);
-          main_container.appendChild(button);
+          div_in.appendChild(label);
+          div_in.appendChild(input);
+          div_in.appendChild(div_opt);
+          div_in.appendChild(button);
           current_question_order += 1;
         }
       });
+
       document.getElementById("publish").addEventListener("click", function () {
+        d = {};
+        d["questions"] = [];
         d["visibility"] = parseInt(
           document.getElementById("visibility").value,
           10
@@ -147,12 +195,29 @@
         d["survey_title"] = document.getElementById("title").value;
         d["survey_desc"] = document.getElementById("desc").value;
         for (let i = 0, len = state.length; i < len; i++) {
-          d["questions"].push({
-            questionOrder: state[i]["Questionorder"],
-            questionValue: state[i]["input_field"].value,
-          });
+          if (state[i]["questiontype"] == 1) {
+            opts = [];
+            for (let j = 0, len = state[i]["opts"].length; j < len; j++) {
+              opts.push({
+                optOrder: state[i]["opts"][j]["optOrder"],
+                opt_input_value: state[i]["opts"][j]["opt_input"].value,
+              });
+            }
+            d["questions"].push({
+              questionOrder: state[i]["Questionorder"],
+              questionValue: state[i]["input_field"].value,
+              questionOpts: opts,
+              questiontype: parseInt(state[i]["questiontype"]),
+            });
+          } else {
+            d["questions"].push({
+              questionOrder: state[i]["Questionorder"],
+              questionValue: state[i]["input_field"].value,
+              questiontype: parseInt(state[i]["questiontype"]),
+            });
+          }
         }
-        console.log(d);
+        fetchdata(d);
       });
     </script>
   </body>
