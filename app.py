@@ -96,24 +96,31 @@ def register():
 @app.route("/my_surveys")
 def my_surveys():
     d={}
+    d['content'] = []
     if authenticate(mysql,session)==False:
         return redirect('/login')
     q = f'SELECT survey_id, user_id, survey_title, survey_description, brand_logo, status, date_created, visibility_description,status_description FROM surveys_table INNER JOIN visibility_table on surveys_table.visibility = visibility_table.visibility_id INNER JOIN status_table on status_table.status_id = surveys_table.status where user_id={session["user_id"]};'
     f = mysql_db(mysql,q,"get")
-    d['content']=f
+    for i in f:
+        
+        q2 = f'SELECT count(*) as cnt FROM response where survey_id={i[0]}'
+        resp = mysql_db(mysql,q2,"get")
+        temp = list(i)
+        temp.append(resp[0][0])
+        d['content'].append(temp)
+    
     d['user_name']= (session['user_name'][:12]) + ("..." if len(session['user_name'])>12 else "")
     return render_template('my_surveys.html',data=d)
 
-@app.route("/get_survey_access",methods=["POST","GET"])
+@app.route("/ans_survey",methods=["POST","GET"])
 def get_survey_access():
     d={'errors':[]}
     if authenticate(mysql,session)==False:
         return redirect('/login')
-    if request.method == 'POST':
-        survey_id =request.form.get('code')
+    if request.method == 'GET':
+        survey_id =request.args['code']
         q=f'SELECT survey_id, user_name,status,visibility,survey_title, survey_description, brand_logo, date_created FROM surveys_table INNER JOIN users_table on users_table.user_id = surveys_table.user_id where survey_id ={survey_id};'
         f = mysql_db(mysql,q,"fetchone")
-
         if not f:
             d['errors'].append("Survey code does not exist!")
             return render_template('errors.html',data=d)
@@ -123,7 +130,11 @@ def get_survey_access():
         elif f[2] == 3 or f[3] == 3:
             d['errors'].append("Survey code does not exist!")
             return render_template('errors.html',data=d)
-
+        q=f'SELECT * FROM response where survey_id={survey_id} and user_id={session["user_id"]}'
+        f = mysql_db(mysql,q,"fetchone")
+        if f:
+            d['errors'].append("Your response already taken!")
+            return render_template('errors.html',data=d)
         # get all questions:
         q=f'SELECT * FROM surveyfeedback.questions where SurveyId ={survey_id};'
         questions = mysql_db(mysql,q,"dict")
@@ -145,37 +156,24 @@ def get_survey_access():
         d['survey_details'] =f
       
         return render_template('ans_survey.html',data=d)
-
+    if request.method =="POST":
+        ans_data = request.json
+        date = datetime.now()
+        date_s = date.strftime("%Y-%m-%d")
+        mysql_db(mysql,f"INSERT INTO response (survey_id, user_id, date )VALUES ({ans_data['survey_id']},{session['user_id']}, '{date_s}');","commit")
+        response_id = mysql_db(mysql,"SELECT LAST_INSERT_ID();","get")[0][0]
+        pprint(ans_data['ans'])
+        for i in ans_data['ans']:
+            if i['questiontype_id'] == 2:
+                mysql_db(mysql,f"INSERT INTO answer (response_id, question_id, answer )VALUES ({response_id},{i['question_id']}, '{i['val']}');","commit")
+            elif i['questiontype_id'] == 1:
+                mysql_db(mysql,f"INSERT INTO answer (response_id, question_id )VALUES ({response_id},{i['question_id']});","commit")
+                ans_id = mysql_db(mysql,"SELECT LAST_INSERT_ID();","get")[0][0]
+                mysql_db(mysql,f"INSERT INTO answer_option (answer_id, question_option_id )VALUES ({ans_id},{i['optId']});","commit")
         
+        return str("Please visit My Surveys")
     return 'a'
-@app.route("/ans_survey_post",methods=["POST","GET"])
-def ans_survey_post():
-    if authenticate(mysql,session)==False:
-        return redirect('/login')
-    survey_code = request.form.get('survey_code')
-    #making ans dict
-    d = {}
-    d['survey_code'] = survey_code
-    d['respondent_id'] = session['user_id'] 
-    date = datetime.now()
-    d['date'] = date.strftime("%Y-%m-%d")
 
-    #q = f"INSERT INTO surveyfeedback.response(survey_id,user_id,date) values({d['survey_code']},{d['respondent_id']},'{d['date']}')"
-
-    #mysql_db(mysql,q)
-    #a = mysql_db(mysql,"SELECT LAST_INSERT_ID();","get")[0][0]
-    d['answers'] = []
-    
-    qs=[]
-    print(request.form)
-
-    for i in request.form:
-        print(i)
-        if i[0][0] == "q":
-            qs.append([i,request.form.get(i)])
-    print(qs)
-    
-    return str(survey_code)
 
 
 @app.route("/create_survey",methods=["GET","POST"])

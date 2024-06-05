@@ -1,6 +1,63 @@
 {% extends "layout_base.html"%}{% block title %}Home{% endblock %} {% block
 user_name %}{{data['user_name']}}{% endblock %} {% block main_container %}
 
-<h1 class="animation: swing 4s infinite text-align--center">Get Started!</h1>
-<img src="/static/images/bg4.jpg" style="width: 25%; align-items: right" />
+<div class="d-flex justify-content-around" style="align-items: center">
+  <div style="width: 600px">
+    <div class="typewriter" style="display: inline-block">
+      <h1 class="text-align--center" style="display: inline-block">
+        Get Started!
+      </h1>
+    </div>
+    <p style="display: inline-block" class="fs-5">
+      This website facilitates you to create surveys and get the analytics of
+      the same.
+    </p>
+  </div>
+  <!-- <img src="/static/images/bg4.jpg" style="width: 25%; align-items: right" /> -->
+
+  <dotlottie-player
+    src="../static/Animation - 1717518109739 (1).json"
+    background="transparent"
+    speed="1"
+    style="width: 550px; height: 550px"
+    loop
+    autoplay
+  ></dotlottie-player>
+</div>
+<script
+  src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+  type="module"
+></script>
+
+<style>
+  .typewriter h1 {
+    overflow: hidden; /* Ensures the content is not revealed until the animation */
+    border-right: 0.15em solid orange; /* The typwriter cursor */
+    white-space: nowrap; /* Keeps the content on a single line */
+    margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+    letter-spacing: 0.15em; /* Adjust as needed */
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  }
+
+  /* The typing effect */
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  /* The typewriter cursor effect */
+  @keyframes blink-caret {
+    from,
+    to {
+      border-color: transparent;
+    }
+    50% {
+      border-color: orange;
+    }
+  }
+</style>
 {%endblock%}

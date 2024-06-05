@@ -115,7 +115,8 @@
           .then((response) => response.text())
           .then((data) =>
             alert(`Success fully Created \nYour Survey Code:${data}`)
-          );
+          )
+          .then(window.open("/", (name = self)));
       };
       const add_question = document.getElementById("add_question");
       const main_container = document.getElementById("main_container");
@@ -203,12 +204,6 @@
                 opt_input_value: state[i]["opts"][j]["opt_input"].value,
               });
             }
-            d["questions"].push({
-              questionOrder: state[i]["Questionorder"],
-              questionValue: state[i]["input_field"].value,
-              questionOpts: opts,
-              questiontype: parseInt(state[i]["questiontype"]),
-            });
           } else {
             d["questions"].push({
               questionOrder: state[i]["Questionorder"],

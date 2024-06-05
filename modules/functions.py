@@ -42,6 +42,6 @@ def mysql_db(mysql,query,others="commit"):
             cur = mysql.connection.cursor()
             cur.execute(query)
             cur.connection.commit()
-            return cur.lastrowid
             cur.close()
+            
         

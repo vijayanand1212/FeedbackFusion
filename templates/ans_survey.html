@@ -13,6 +13,7 @@
   </head>
   <body style="background-color: rgb(239, 239, 239)">
     <div
+      id="hello"
       class="container shadow"
       style="
         background-color: white;
@@ -48,49 +49,108 @@
 
       <div style="margin-left: 20px; margin-right: 20px">
         <p class="fs-5 fw-bold">Start Answering The Below Questions:</p>
-        <form action="/ans_survey_post" method="post">
-          <input
-            hidden
-            name="survey_code"
-            value="{{data['survey_details'][0]}}"
-          />
-          {% for i in data['questions'] %}
-          <p class="fs-5">
-            <span class="fw-bold">{{i['order']}}.</span>
-            {{i['Description']}}
-          </p>
-          {% if i['questiontype_id'] == 1 %} {% for j in i['options'] %}
-          <div class="form-check">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="q{{i['QuestionId']}}-{{i['questiontype_id']}}-{{i['questiontype_id']}}"
-              id="{{j['order']}}"
-              value="{{j['order']}}"
-              required
-            />
-            <label class="form-check-label" for="{{j['order']}}">
-              {{j['OptDesc']}}
-            </label>
-          </div>
-          {% endfor %} {% else %}
-          <textarea
-            type="text"
-            name="q{{i['QuestionId']}}-{{i['questiontype_id']}}-None"
-            required
-            class="form-control"
-          ></textarea>
-
-          {%endif %} {%endfor %}
-          <button
-            class="btn btn-success"
-            type="submit"
-            style="display: block; margin-top: 20px"
-          >
-            Answer Survey
-          </button>
-        </form>
+        <div id="main_container"></div>
+        <button
+          id="btn_ans"
+          class="btn btn-success"
+          type="submit"
+          style="display: block; margin-top: 20px"
+        >
+          Answer Survey
+        </button>
       </div>
     </div>
+    <script>
+      let data = {{data | tojson}};
+      console.log(data)
+      let main_container = document.getElementById('main_container');
+      state = [];
+      data["questions"].forEach(function (element) {
+        q = `          <p class="fs-5 mb-1 mt-3">
+          <span class="fw-bold">${element['order']}.</span>
+          ${element['Description']}
+        </p>`
+        let div = document.createElement('div')
+        div.innerHTML = q
+        if (element["questiontype_id"] == 2) {
+          let inp = document.createElement('textarea')
+          inp.className = 'form-control'
+          inp.required= true
+          inp.type = "text"
+          state.push({questiontype_id:2,inp_field:inp,question_id:element.QuestionId})
+          div.appendChild(inp)
+        }
+        else{
+          opts = []
+          element['options'].forEach(function(element2){
+            const in_div =document.createElement('div')
+            in_div.style="display:block;margin-bottom:5px"
+            const label = document.createElement('label');
+            label.textContent = element2['OptDesc'];
+            label.style ="margin-left:5px"
+            let inp = document.createElement('input')
+            inp.className = "form-check-input"
+            inp.type="radio"
+            inp.name = element['QuestionId']
+            inp.value= element2['OptDesc']
+            opts.push({opt_Id:element2["Id"],inp_field:inp})
+            in_div.appendChild(inp)
+            in_div.appendChild(label)
+            div.appendChild(in_div)
+          })
+          state.push({questiontype_id:1,inp_field:opts,question_id:element.QuestionId})
+
+        }
+        main_container.appendChild(div)
+      });
+      const fetchdata = async (data) => {
+        fetch("/ans_survey", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.text())
+          .then((data) =>
+            alert(`Successfully submitted`)
+          )
+
+      };
+      console.log(state)
+      resp = {}
+      resp['ans'] = []
+      let btn_ans = document.getElementById('btn_ans')
+      btn_ans.addEventListener('click',function(){
+        resp['survey_id'] = data['survey_details'][0]
+
+        state.forEach(function(element){
+          if (element['questiontype_id'] ==2){
+            resp['ans'].push({
+              question_id:element.question_id,
+              questiontype_id:2,
+              val:element.inp_field.value
+            })
+
+          }else{
+            element.inp_field.forEach(function(element2){
+              if (element2.inp_field.checked ==true){
+                resp.ans.push({
+                  question_id:element.question_id,
+                  questiontype_id:1,
+                  optId:element2.opt_Id
+                })
+
+
+              }
+            })
+          }
+        })
+        console.log(resp)
+
+        fetchdata(resp)
+
+      })
+    </script>
   </body>
 </html>

@@ -10,7 +10,7 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-  </head>
+
   <body>
     <div class="bg-image" class="d-flex">
       <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
@@ -47,10 +47,10 @@
                 <ul class="dropdown-menu">
                   <li>
                     <a class="dropdown-item" href="#" id="user_name"
-                      >{% block user_name %}{% endblock%}</a
+                      >{% block user_name %}{% endblock%}-Profile</a
                     >
                   </li>
-                  <li><a class="dropdown-item" href="#">Settings</a></li>
+
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <a class="dropdown-item" href="/logout">Log out</a>
@@ -66,7 +66,7 @@
                 </button>
               </a>
             </ul>
-            <form class="d-flex" action="/get_survey_access" method="post">
+            <form class="d-flex" action="/ans_survey" method="get">
               <input
                 class="form-control me-2"
                 type="number"
