@@ -3,15 +3,31 @@ user_name %}{{data['user_name']}}{% endblock %} {% block main_container %}
 
 <div class="d-flex justify-content-around" style="align-items: center">
   <div style="width: 600px">
-    <div class="typewriter" style="display: inline-block">
-      <h1 class="text-align--center" style="display: inline-block">
-        Get Started!
+    <div class="greeter">
+      <h1 id="head" style="text-shadow: 2px 2px 15px rgba(37, 37, 37, 0.252)">
+        B
       </h1>
+      <div class="blink"></div>
     </div>
-    <p style="display: inline-block" class="fs-5">
-      This website facilitates you to create surveys and get the analytics of
-      the same.
+    <p
+      style="display: inline-block; margin-top: 10px; text-align: justify"
+      class="fs-5"
+    >
+      Welcome to FeedbackFusion, where every opinion shapes the future. Our
+      platform is dedicated to transforming diverse insights into actionable
+      outcomes. Together, let's fuse ideas and make a difference.
     </p>
+    <form class="d-flex" action="/ans_survey" method="get">
+      <input
+        class="form-control me-2"
+        type="number"
+        placeholder="Enter Survey Code (XXX2206)"
+        aria-label="Search"
+        name="code"
+        required
+      />
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
   </div>
   <!-- <img src="/static/images/bg4.jpg" style="width: 25%; align-items: right" /> -->
 
@@ -24,40 +40,66 @@ user_name %}{{data['user_name']}}{% endblock %} {% block main_container %}
     autoplay
   ></dotlottie-player>
 </div>
+
 <script
   src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
   type="module"
 ></script>
+<script src=" https://cdn.jsdelivr.net/npm/kute.js/dist/kute.min.js "></script>
 
+<script>
+  const greetings = ["Welcome! :)", "Get Started!"];
+  let currentGreetingIndex = 0;
+  let currentText = "";
+  let letterIndex = 0;
+  const speed = 100;
+
+  function typeWriter() {
+    if (letterIndex < greetings[currentGreetingIndex].length) {
+      currentText += greetings[currentGreetingIndex].charAt(letterIndex);
+      document.getElementById("head").textContent = currentText;
+      letterIndex++;
+      setTimeout(typeWriter, speed);
+    } else {
+      setTimeout(eraseText, 2000);
+    }
+  }
+
+  function eraseText() {
+    if (currentText.length > 0) {
+      currentText = currentText.slice(0, -1);
+      document.getElementById("head").innerHTML = currentText;
+      setTimeout(eraseText, speed);
+    } else {
+      currentGreetingIndex = (currentGreetingIndex + 1) % greetings.length;
+      letterIndex = 0;
+      setTimeout(typeWriter, 500);
+    }
+  }
+  typeWriter();
+</script>
 <style>
-  .typewriter h1 {
-    overflow: hidden; /* Ensures the content is not revealed until the animation */
-    border-right: 0.15em solid orange; /* The typwriter cursor */
-    white-space: nowrap; /* Keeps the content on a single line */
-    margin: 0 auto; /* Gives that scrolling effect as the typing happens */
-    letter-spacing: 0.15em; /* Adjust as needed */
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  .greeter {
+    display: flex;
+    justify-content: start;
+    height: 41px;
   }
 
-  /* The typing effect */
-  @keyframes typing {
-    from {
-      width: 0;
-    }
-    to {
-      width: 100%;
-    }
-  }
-
-  /* The typewriter cursor effect */
-  @keyframes blink-caret {
-    from,
-    to {
-      border-color: transparent;
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
     }
     50% {
-      border-color: orange;
+      opacity: 0;
     }
+  }
+
+  .blink {
+    display: block;
+    border-left: 3px solid var(--text);
+    margin-left: 6px;
+    animation: blink 1s step-start infinite;
   }
 </style>
 {%endblock%}

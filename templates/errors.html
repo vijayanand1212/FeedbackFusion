@@ -4,8 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Error</title>
+    <script
+      src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+      type="module"
+    ></script>
   </head>
   <body>
-    <h1 style="text-align: center">{{data['errors'][0]}}</h1>
+    <div style="justify-content: center">
+      <dotlottie-player
+        src="https://lottie.host/ef8aaafd-ec54-4b41-85e0-194c57db4abf/k9UHYOp1CB.json"
+        background="transparent"
+        speed="1"
+        style="width: 300px; height: 300px; margin: auto"
+        loop
+        autoplay
+      ></dotlottie-player>
+      <div
+        style="
+          background-color: rgb(22, 64, 136);
+          padding: 10px;
+          border-radius: 15px;
+          box-shadow: 5px 5px 15px rgba(45, 45, 45, 0.377);
+          vertical-align: middle;
+        "
+      >
+        <p
+          style="
+            font-size: 25px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+          "
+        >
+          {{data['errors'][0]}}
+        </p>
+      </div>
+    </div>
   </body>
 </html>

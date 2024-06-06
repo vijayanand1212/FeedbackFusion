@@ -10,6 +10,7 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link rel="icon" href="../static/images/logo.png" type="image/icon type">
 
   <body>
     <div class="bg-image" class="d-flex">
@@ -33,6 +34,9 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
                 <a class="nav-link" href="/my_surveys">My Surveys</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Public Surveys</a>
               </li>
               <li class="nav-item dropdown">
                 <a
@@ -66,17 +70,7 @@
                 </button>
               </a>
             </ul>
-            <form class="d-flex" action="/ans_survey" method="get">
-              <input
-                class="form-control me-2"
-                type="number"
-                placeholder="Enter Survey Code"
-                aria-label="Search"
-                name="code"
-                required
-              />
-              <button class="btn btn-outline-primary" type="submit">Get</button>
-            </form>
+           
           </div>
         </div>
       </nav>

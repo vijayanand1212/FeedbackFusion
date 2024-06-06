@@ -1,4 +1,4 @@
-from flask import Flask,request,render_template,session,redirect,url_for
+from flask import Flask,request,render_template,session,redirect,url_for,Response
 from flask_session import Session
 from flask_mysqldb import MySQL
 from modules.functions import *
@@ -95,6 +95,8 @@ def register():
 
 @app.route("/my_surveys")
 def my_surveys():
+    if authenticate(mysql,session)==False:
+        return redirect('/login')
     d={}
     d['content'] = []
     if authenticate(mysql,session)==False:
@@ -114,6 +116,8 @@ def my_surveys():
 
 @app.route("/ans_survey",methods=["POST","GET"])
 def get_survey_access():
+    if authenticate(mysql,session)==False:
+        return redirect('/login')
     d={'errors':[]}
     if authenticate(mysql,session)==False:
         return redirect('/login')
@@ -121,6 +125,7 @@ def get_survey_access():
         survey_id =request.args['code']
         q=f'SELECT survey_id, user_name,status,visibility,survey_title, survey_description, brand_logo, date_created FROM surveys_table INNER JOIN users_table on users_table.user_id = surveys_table.user_id where survey_id ={survey_id};'
         f = mysql_db(mysql,q,"fetchone")
+        d['survey_details'] =f
         if not f:
             d['errors'].append("Survey code does not exist!")
             return render_template('errors.html',data=d)
@@ -153,8 +158,8 @@ def get_survey_access():
             opts = sorted(opts, key=lambda d: d['order'])
             i['options']= opts
         d['questions'] = questions
-        d['survey_details'] =f
-      
+       
+        
         return render_template('ans_survey.html',data=d)
     if request.method =="POST":
         ans_data = request.json
@@ -162,7 +167,7 @@ def get_survey_access():
         date_s = date.strftime("%Y-%m-%d")
         mysql_db(mysql,f"INSERT INTO response (survey_id, user_id, date )VALUES ({ans_data['survey_id']},{session['user_id']}, '{date_s}');","commit")
         response_id = mysql_db(mysql,"SELECT LAST_INSERT_ID();","get")[0][0]
-        pprint(ans_data['ans'])
+      
         for i in ans_data['ans']:
             if i['questiontype_id'] == 2:
                 mysql_db(mysql,f"INSERT INTO answer (response_id, question_id, answer )VALUES ({response_id},{i['question_id']}, '{i['val']}');","commit")
@@ -178,6 +183,8 @@ def get_survey_access():
 
 @app.route("/create_survey",methods=["GET","POST"])
 def create_survey():
+    if authenticate(mysql,session)==False:
+        return redirect('/login')
     if request.method == "POST":
         data = request.json
         date = datetime.now()
@@ -185,19 +192,44 @@ def create_survey():
         json_dump = json.dumps(data['questions'])
         
         q=f"CALL InsertSurveyData({session['user_id']},'{data['survey_title']}', '{data['survey_desc']}',{data['visibility']},'{date_s}','{json_dump}') "
-        print(q)
+   
         mysql_db(mysql,q,"commit")
         
         return str("Please visit My Surveys")
     return render_template('create_survey.html')
+@app.route("/get_analytics",methods=["GET"])
+def get_analytics():
+    # master = {}
+    # survey_id = 1000073
+    # master['survey_id'] = survey_id
+    # master['questions'] = []
+    # q=f'SELECT * FROM questions where surveyId ={survey_id};'
+    # f = mysql_db(mysql,q,"dict")
+    # qIds = []
+    # for i in f:
+    #     qIds.append(str(i["QuestionId"]))
+    # qIds_str= " and ".join(qIds)
+    # q2 = f'SELECT * FROM question_options where QuestionId ={qIds_str};'
+    # f2 = mysql_db(mysql,q2,"dict")
+    # getQuestionId = lambda key:[i['questiontype_id']  for i in f if i['QuestionId'] == key]
+    # for i in f2:
+    #     if getQuestionId(i["QuestionId"])[0] == 1:
+            
+    return "hello world"
 
-
+@app.route("/about_us")
+def about_us():
+    d={}
+    d['user_name']= (session['user_name'][:12]) + ("..." if len(session['user_name'])>12 else "")
+    return render_template('about_us.html',data=d)
 @app.route("/delete_survey",methods=["POST"])
+
+
 def delete_survey():
     if authenticate(mysql,session)==False:
         return redirect('/login')
     q=f"CALL DeleteSurvey({request.form.get('id')});"
-    print(q)
+
     mysql_db(mysql,q,"commit")
     return redirect(url_for('my_surveys'))
 

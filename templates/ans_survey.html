@@ -62,7 +62,7 @@
     </div>
     <script>
       let data = {{data | tojson}};
-      console.log(data)
+
       let main_container = document.getElementById('main_container');
       state = [];
       data["questions"].forEach(function (element) {
@@ -114,10 +114,10 @@
           .then((response) => response.text())
           .then((data) =>
             alert(`Successfully submitted`)
-          )
+          ).then(window.open("/", (name = self)));
 
       };
-      console.log(state)
+
       resp = {}
       resp['ans'] = []
       let btn_ans = document.getElementById('btn_ans')
@@ -146,7 +146,7 @@
             })
           }
         })
-        console.log(resp)
+
 
         fetchdata(resp)
 

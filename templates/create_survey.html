@@ -199,11 +199,18 @@
           if (state[i]["questiontype"] == 1) {
             opts = [];
             for (let j = 0, len = state[i]["opts"].length; j < len; j++) {
+              console.log("Opt11212");
               opts.push({
                 optOrder: state[i]["opts"][j]["optOrder"],
                 opt_input_value: state[i]["opts"][j]["opt_input"].value,
               });
             }
+            d["questions"].push({
+              questionOrder: state[i]["Questionorder"],
+              questionValue: state[i]["input_field"].value,
+              questionOpts: opts,
+              questiontype: parseInt(state[i]["questiontype"]),
+            });
           } else {
             d["questions"].push({
               questionOrder: state[i]["Questionorder"],

@@ -1,0 +1,44 @@
+{% extends "layout_base.html"%} {% block title %}My Surveys{% endblock %} {%
+block user_name %}{{data['user_name']}}{% endblock %} {% block main_container %}
+<div
+  style="
+    justify-content: center;
+    padding: 15px;
+    background-color: rgb(247, 247, 247);
+    margin: 50px 100px 0 100px;
+    border-radius: 20px;
+  "
+>
+  <h1 style="text-align: center">ABOUT US</h1>
+  <hr style="color: black" />
+
+  <div>
+    <h3>OUR MISSION</h3>
+    <p class="fs-5" style="text-align: justify">
+      At FeebBackFusion, our mission is to provide a platform for individuals
+      and organizations to gather valuable insights through surveys. We believe
+      in the power of data-driven decision-making and aim to make the process of
+      collecting and analyzing data as simple and effective as possible.
+    </p>
+    <hr style="color: black" />
+    <h3>WHAT WE DO</h3>
+    <p class="fs-5" style="text-align: justify">
+      What We Do We provide a comprehensive survey creation and management
+      platform that empowers users to design, distribute, and analyze surveys
+      with ease. Whether you're a student conducting research for a school
+      project, a business owner seeking customer feedback, or a non-profit
+      organization gathering community opinions, FeedBack Fusion has the tools
+      you need to achieve your goals.
+    </p>
+    <hr style="color: black" />
+    <div>
+      <h6 style="display: inline">Project Source Code:</h6>
+      <a href="https://github.com/vijayanand1212/FeedbackFusion">GitHub</a>
+    </div>
+    <div>
+      <h6 style="display: inline">Project Documentation:</h6>
+      <a href="../static/project_pdf.docx">Project Documentation-Download</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
