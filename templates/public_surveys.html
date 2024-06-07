@@ -1,0 +1,97 @@
+{% extends "layout_base.html"%} {% block title %}My Surveys{% endblock %} {%
+block user_name %}{{data['user_name']}}{% endblock %} {% block main_container %}
+<div class="container mt-5">
+  {% if data['content'] %}
+  <form class="d-flex" action="/ans_survey" method="get">
+    <input
+      class="form-control me-2"
+      type="text"
+      placeholder="Search by Keywords"
+      aria-label="Search"
+      name="keyword"
+      required
+    />
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+
+  <div class="row justify-content-center">
+    {% for i in data['content']%}
+    <div
+      style="
+        background-color: white;
+        border-radius: 7px;
+        margin: 10px;
+        padding: 10px;
+      "
+      class="col-md-3 shadow-sm d-flex flex-column align-items-stretch"
+    >
+      <p
+        style="
+          padding: 5px;
+          margin: 0;
+          background-color: rgba(243, 243, 243, 0.341);
+          border-radius: 7px;
+          text-align: center;
+        "
+        class="text-truncate fs-5 fw-bold"
+      >
+        {{i['survey_title']}}
+      </p>
+      <div >
+        <p class="fs-5 fw-bold m-0">Description</p>
+        <p id="survey_description"  style="-webkit-line-clamp: 7;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;">
+          {{i['survey_description']}}
+         
+        </p>
+
+      </div>
+      <div class="d-flex justify-content-between">
+        <p class="mb-1 fs-6 fw-bold">Number of FeebBacks</p>
+        <p class="mb-1 fs-6">0</p>
+      </div>
+      <form
+        method="post"
+        action="/get_acess"
+        onsubmit="confirm('Do you really want to delete the survey?')"
+       
+        
+      >
+        <input name="id" hidden value="{{i[0]}}" />
+        <button class="btn btn-primary w-100" type="submit">
+          Answer Survey
+        </button>
+      </form>
+    </div>
+    {% endfor %} {% else %}
+    <script
+      src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+      type="module"
+    ></script>
+
+    <dotlottie-player
+      src="https://lottie.host/bf799d29-1997-484a-8a4d-008a51214045/uUxXa1Rvux.json"
+      background="transparent"
+      speed="1"
+      style="width: 300px; height: 300px"
+      loop
+      autoplay
+    ></dotlottie-player>
+    <h5 style="text-align: center">No Survey Active</h5>
+    {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+    let status_more = true
+    let data = {{data | tojson}};
+    
+    function onchange(){
+        if (status_more ==true){
+
+        }
+    }
+</script>
+{% endblock %}

@@ -55,7 +55,7 @@ def logout():
         del session['user_name']
         del session['passcode']
         del session['user_id']
-    return "Logged Out Successfully!"
+    return render_template('errors.html',data={'errors':["Logged out successfully"]})
 
 
 @app.route("/register",methods=['POST','GET'])
@@ -216,7 +216,15 @@ def get_analytics():
     #     if getQuestionId(i["QuestionId"])[0] == 1:
             
     return "hello world"
-
+@app.route("/get_public_surveys")
+def get_public_surveys():
+    q2 = "SELECT * FROM surveyfeedback.surveys_table where visibility = 1 and status = 2"
+    f = mysql_db(mysql,q2,"dict")
+    print(f)
+    d={}
+    d['content'] = f
+    d['user_name']= (session['user_name'][:12]) + ("..." if len(session['user_name'])>12 else "")
+    return render_template('public_surveys.html',data=d)
 @app.route("/about_us")
 def about_us():
     d={}
